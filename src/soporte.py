@@ -52,11 +52,11 @@ def distribucion_numericas(dataframe):
         axes[i].tick_params(labelsize = 20)
         axes[i].set_xlabel("")
         
-    fig.tight_layout();
+    fig.tight_layout();  
     return None
 
 
-def correla_respuesta(dataframe, respuesta):
+def correla_respuesta_num(dataframe, respuesta):
     columnas_numeric = dataframe.select_dtypes(include = np.number).columns
     columnas_numeric = columnas_numeric.drop(respuesta)
 
@@ -94,3 +94,109 @@ def correla_map(dataframe):
         mask = mask,
         annot = True);
     return None
+
+def correla_respuesta_cate(dataframe, respuesta):
+    columnas_object = dataframe.select_dtypes(include = "object").columns
+
+    fig, axes = plt.subplots(nrows = int(np.ceil(len(columnas_object)/2)), ncols = 2, figsize = (25, 15))
+    axes = axes.flat
+
+    for i, colum in enumerate(columnas_object): 
+        sns.boxplot(
+            data = dataframe,
+            x = colum,
+            y = respuesta,
+            ax = axes[i])
+                
+        axes[i].set_title(colum, fontsize = 15, fontweight = "bold")
+        axes[i].tick_params(labelsize = 20)
+        axes[i].set_xlabel("")
+
+    fig.tight_layout();
+    return None
+
+def outlier_boxplot(dataframe, respuesta = None):
+    columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+    if respuesta != None:
+        columnas_numeric = columnas_numeric.drop(respuesta)
+
+    fig, axes = plt.subplots(len(columnas_numeric), 1, figsize = (25, 15))
+
+    for i, colum in enumerate(columnas_numeric):
+        sns.boxplot(
+            x = columnas_numeric[i],
+            data = dataframe,
+            ax = axes[i],
+            color = "royalblue")
+        axes[i].set_title(colum, fontsize = 15, fontweight = "bold")
+        axes[i].set_xlabel("")
+    fig.tight_layout();
+    return None
+
+def detectar_outliers(dataframe, respuesta = None, diccionario = {}): 
+    
+    dicc_indices = {} # creamos un diccionario donde almacenaremos índices de los outliers
+    columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+    if respuesta != None:
+        columnas_numeric = columnas_numeric.drop(respuesta)
+
+    # iteramos por la lista de las columnas numéricas de nuestro dataframe
+    for col in columnas_numeric:
+                #calculamos los cuartiles Q1 y Q3
+        Q1 = np.nanpercentile(dataframe[col], 25)
+        Q3 = np.nanpercentile(dataframe[col], 75)
+        
+        # calculamos el rango intercuartil
+        IQR = Q3 - Q1
+        
+        # calculamos los límites
+        outlier_step = 1.5 * IQR
+
+        if col in diccionario:
+            if "bot" in diccionario[col]:
+                outlier_step_bot = diccionario[col]["bot"]
+            elif "bot" not in diccionario[col]:
+                outlier_step_bot = Q1 - outlier_step
+            
+            if "top" in diccionario[col]:
+                outlier_step_top = diccionario[col]["top"]
+            elif "top" not in diccionario[col]:
+                outlier_step_top = Q3 - outlier_step
+
+        else:
+            outlier_step_bot = Q1 - outlier_step
+            outlier_step_top = Q3 + outlier_step
+            # filtramos nuestro dataframe para indentificar los outliers
+        
+        outliers_data = dataframe[(dataframe[col] < outlier_step_bot) | (dataframe[col] > outlier_step_top)]
+        
+        
+        if outliers_data.shape[0] > 0: # chequeamos si nuestro dataframe tiene alguna fila. 
+        
+            dicc_indices[col] = (list(outliers_data.index)) # si tiene fila es que hay outliers y por lo tanto lo añadimos a nuestro diccionario
+        
+    return dicc_indices 
+
+def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
+    if metodo == "drop":
+        valores = set(sum((list(dic_outliers.values())), []))
+        dataframe.drop(dataframe.index[list(valores)], inplace = True)
+    
+    elif metodo in ["mean", "median", "replace", "null"]:
+        for k, v in dic_outliers.items():
+            if metodo == "mean":
+                value = dataframe[k].mean() # calculamos la media para cada una de las columnas que tenemos en nuestro diccionario
+            
+            elif metodo == "median":
+                value = dataframe[k].median() # calculamos la mediana para cada una de las columnas que tenemos en nuestro diccionario
+
+            elif metodo == "null":
+                value = np.nan
+
+            else:
+                pass
+
+            for i in v: # iteremos por la lista de valores para cada columna
+                dataframe.loc[i,k] = value
+
+    return dataframe

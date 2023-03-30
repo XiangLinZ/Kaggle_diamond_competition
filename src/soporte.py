@@ -16,6 +16,10 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.preprocessing import OrdinalEncoder
 
+from sklearn.model_selection import train_test_split
+
+from sklearn.tree import DecisionTreeRegressor 
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -312,3 +316,26 @@ def estandarizacion(dataframe, metodo, lista = None ,respuesta = None, modelo = 
         pickle.dump(scaler, s)
 
     return dataframe2
+
+def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 0.2):
+    X = dataframe.drop(respuesta, axis = 1)
+    y = dataframe[respuesta]
+    X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = test_size, random_state = random_state)
+    regressor = DecisionTreeRegressor(random_state = 0) 
+    regressor.fit(X_train, y_train)
+
+    max_features = np.sqrt(len(X_train.columns))
+    max_depth = regressor.tree_.max_depth
+    if max_depth > 15:
+        lista_depth = [x for x in range(2, (15), 2)] + [x for x in range(16, (max_depth + 2), 4)]
+    elif max_depth > 8:
+        lista_depth = [x for x in range(2, (max_depth + 2), 2)]
+    else:
+        lista_depth = [x for x in range(2, (max_depth + 2))]
+    
+    param = {"max_depth": lista_depth,
+            "min_samples_split": [x for x in range (25,201,25)],
+            "min_leaf_split": [x for x in range (25,201,25)],
+            "max_features": [x for x in range(1,int(max_features +2))]}
+    
+    return param

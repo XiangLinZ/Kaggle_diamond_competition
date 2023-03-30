@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random
 
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.impute import KNNImputer
+
 def analisis_basico(dataframe):
     """_summary_
 
@@ -195,8 +199,59 @@ def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
 
             else:
                 pass
-
+            
             for i in v: # iteremos por la lista de valores para cada columna
                 dataframe.loc[i,k] = value
+
+    return dataframe
+
+
+def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neighbors = 5):
+    columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+    if respuesta != None:
+        columnas_numeric = columnas_numeric.drop(respuesta)
+
+    if metodo == "drop":
+        dataframe[columnas_numeric].dropna(how = "any", inplace = True)
+        return dataframe
+    
+    elif metodo in ["replace", "mean", "median", "mode"]:
+        if metodo == "replace":
+            numericas_trans = dataframe[columnas_numeric].fillna(valor)
+        else:
+            for col in columnas_numeric:
+                if metodo == "mean":
+                    dataframe[col].fillna(dataframe[col].mean()[0], inplace = True)
+                elif metodo == "median":
+                    dataframe[col].fillna(dataframe[col].median()[0], inplace = True)
+                elif metodo == "mode":
+                    dataframe[col].fillna(dataframe[col].mode()[0], inplace = True)
+            return dataframe 
+        
+    elif metodo in ["iterative", "knn"]:
+        if metodo == "iterative":
+            imputer = IterativeImputer()
+        elif metodo == "knn":
+            imputer = KNNImputer(neighbors)
+
+        numericas_trans = pd.DataFrame(imputer.fit_transform(dataframe[columnas_numeric]), columns = columnas_numeric)
+    dataframe.drop(columnas_numeric, axis = 1, inplace = True)
+    dataframe[columnas_numeric] = numericas_trans
+
+    return dataframe
+
+
+def tratamiento_nulos_cat(dataframe, metodo = "drop", valor = "desconocido", respuesta = None):
+    columnas_object = dataframe.select_dtypes(include = "object").columns
+    if respuesta != None:
+        columnas_object = columnas_object.drop(respuesta)
+        
+    if metodo == "drop":
+        dataframe[columnas_object].dropna(how = "any", inplace = True)
+
+    elif metodo == "replace":
+        categoricas_trans = dataframe[columnas_object].fillna(valor)
+        dataframe.drop(columnas_object, axis = 1, inplace = True)
+        dataframe[columnas_object] = categoricas_trans
 
     return dataframe

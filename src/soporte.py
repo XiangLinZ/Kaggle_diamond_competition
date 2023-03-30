@@ -3,10 +3,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import random
+import pickle
 
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 from sklearn.impute import KNNImputer
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
+
+from sklearn.preprocessing import OneHotEncoder  
+from sklearn.preprocessing import LabelEncoder 
+from sklearn.preprocessing import OrdinalEncoder
+
+import warnings
+warnings.filterwarnings('ignore')
 
 def analisis_basico(dataframe):
     """_summary_
@@ -182,9 +193,10 @@ def detectar_outliers(dataframe, respuesta = None, diccionario = {}):
     return dicc_indices 
 
 def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
+    dataframe2 = dataframe.copy()
     if metodo == "drop":
         valores = set(sum((list(dic_outliers.values())), []))
-        dataframe.drop(dataframe.index[list(valores)], inplace = True)
+        dataframe2 = dataframe.drop(dataframe.index[list(valores)])
     
     elif metodo in ["mean", "median", "replace", "null"]:
         for k, v in dic_outliers.items():
@@ -201,9 +213,9 @@ def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
                 pass
             
             for i in v: # iteremos por la lista de valores para cada columna
-                dataframe.loc[i,k] = value
+                dataframe2.loc[i,k] = value
 
-    return dataframe
+    return dataframe2
 
 
 def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neighbors = 5):
@@ -212,8 +224,8 @@ def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neigh
         columnas_numeric = columnas_numeric.drop(respuesta)
 
     if metodo == "drop":
-        dataframe[columnas_numeric].dropna(how = "any", inplace = True)
-        return dataframe
+        dataframe2 = dataframe[columnas_numeric].dropna(how = "any")
+        return dataframe2
     
     elif metodo in ["replace", "mean", "median", "mode"]:
         if metodo == "replace":
@@ -221,12 +233,12 @@ def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neigh
         else:
             for col in columnas_numeric:
                 if metodo == "mean":
-                    dataframe[col].fillna(dataframe[col].mean()[0], inplace = True)
+                    dataframe2 = dataframe[col].fillna(dataframe[col].mean()[0])
                 elif metodo == "median":
-                    dataframe[col].fillna(dataframe[col].median()[0], inplace = True)
+                    dataframe2 = dataframe[col].fillna(dataframe[col].median()[0])
                 elif metodo == "mode":
-                    dataframe[col].fillna(dataframe[col].mode()[0], inplace = True)
-            return dataframe 
+                    dataframe2 = dataframe[col].fillna(dataframe[col].mode()[0])
+            return dataframe2 
         
     elif metodo in ["iterative", "knn"]:
         if metodo == "iterative":
@@ -235,10 +247,10 @@ def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neigh
             imputer = KNNImputer(neighbors)
 
         numericas_trans = pd.DataFrame(imputer.fit_transform(dataframe[columnas_numeric]), columns = columnas_numeric)
-    dataframe.drop(columnas_numeric, axis = 1, inplace = True)
-    dataframe[columnas_numeric] = numericas_trans
+    dataframe2 = dataframe.drop(columnas_numeric, axis = 1)
+    dataframe2[columnas_numeric] = numericas_trans
 
-    return dataframe
+    return dataframe2
 
 
 def tratamiento_nulos_cat(dataframe, metodo = "drop", valor = "desconocido", respuesta = None):
@@ -247,11 +259,56 @@ def tratamiento_nulos_cat(dataframe, metodo = "drop", valor = "desconocido", res
         columnas_object = columnas_object.drop(respuesta)
         
     if metodo == "drop":
-        dataframe[columnas_object].dropna(how = "any", inplace = True)
+        dataframe2 = dataframe[columnas_object].dropna(how = "any")
 
     elif metodo == "replace":
         categoricas_trans = dataframe[columnas_object].fillna(valor)
-        dataframe.drop(columnas_object, axis = 1, inplace = True)
-        dataframe[columnas_object] = categoricas_trans
+        dataframe2 = dataframe.drop(columnas_object, axis = 1)
+        dataframe2[columnas_object] = categoricas_trans
 
-    return dataframe
+    return dataframe2
+
+
+def encoder(dataframe, diccionario, modelo = 0):
+    dataframe2 = dataframe.copy()
+    for k, v in diccionario.items():
+        if v in ["dummies", "one_hot"]:
+            encoder = OneHotEncoder()
+            dataframe2[k] = encoder.fit_transform(dataframe[k])
+
+        elif v == "label":
+            encoder = LabelEncoder()
+            dataframe2[k] = encoder.fit_transform(dataframe[k])
+
+        elif type(v) == dict:
+            if list(v.keys())[0] == "ordinal":
+                encoder = OrdinalEncoder(categories = [v["ordinal"]], dtype = int)
+                dataframe2[k] = encoder.fit_transform(dataframe[[k]])
+
+            elif list(v.keys())[0] == "map":
+                dataframe2[k] = dataframe[k].map(v["map"])
+
+        with open(f'../data/encoding_{k}_{modelo}.pkl', 'wb') as s:
+                pickle.dump(encoder, s)
+
+    return dataframe2
+
+def estandarizacion(dataframe, metodo, lista = None ,respuesta = None, modelo = 0):
+    dataframe2 = dataframe.copy()
+    columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+    if respuesta != None:
+        columnas_numeric = columnas_numeric.drop(respuesta)
+    if lista != None:
+        columnas_numeric = lista
+
+    if metodo == "estandar":
+        scaler = StandardScaler()
+    elif metodo == "robust":
+        scaler = RobustScaler()
+
+    dataframe2[columnas_numeric] = scaler.fit_transform(dataframe[columnas_numeric])
+
+    with open(f'../data/estandarizacion_{modelo}.pkl', 'wb') as s:
+        pickle.dump(scaler, s)
+
+    return dataframe2

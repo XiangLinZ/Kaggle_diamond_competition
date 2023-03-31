@@ -3,7 +3,7 @@
 ![portada](images\Machine-learning-860x573.jpg)
 ---
 # Introducción
-En [Ironhack](https://github.com/XiangLinZ/Products_and_Supermarkets) han realizado una pequeña competición en [Kaggle]() de machine learning, donde todos los alumnos compiten por conseguir el mejor modelo predictivo de los precios de los diamantes en base a sus características. 💎💎
+En [Ironhack](https://www.ironhack.com/es/en/madrid?utm_campaign=MAD_Spain_Madrid_Global_Search_Brand_EN&utm_source=google&utm_medium=cpc&utm_content=search-brand&utm_term=ironhack&gclid=Cj0KCQjwiZqhBhCJARIsACHHEH9MjpiH7GcScDEMzxakguTyR5gVe-41yxQTis8yldOk_EagHIVpJRAaArVGEALw_wcB) han realizado una pequeña competición en [Kaggle](https://www.kaggle.com/competitions/diamonds-datamad1022/overview) de machine learning, donde todos los alumnos compiten por conseguir el mejor modelo predictivo de los precios de los diamantes en base a sus características. 💎💎
 
 Obviamente la competición es abierta, por lo que no solo está limitado a los alumnos de Ironhack.
 
@@ -24,7 +24,7 @@ Ya hicimos un par de modelos anteriormente en el modelo, por que además quise p
 
 - Estas funciones en un futuro planeo juntarlas en una clase, para que haya más interactividad entre funciones.
 
-- Las funciones son un poco complejas al principio, por lo que recomiendo leer bien su domunetación [aquí](https://github.com/XiangLinZ/Products_and_Supermarkets). 👈👈
+- Las funciones son un poco complejas al principio, por lo que recomiendo leer bien su domunetación [aquí](https://github.com/XiangLinZ/Kaggle_diamond_competition/blob/main/src/soporte.py). 👈👈
 
 
 ---

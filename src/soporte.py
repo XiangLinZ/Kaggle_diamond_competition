@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import random
 import pickle
+from tqdm import tqdm
 
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
@@ -17,8 +18,15 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OrdinalEncoder
 
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 
-from sklearn.tree import DecisionTreeRegressor 
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+
+from sklearn import metrics
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -160,7 +168,7 @@ def detectar_outliers(dataframe, respuesta = None, diccionario = {}):
         columnas_numeric = columnas_numeric.drop(respuesta)
 
     # iteramos por la lista de las columnas numéricas de nuestro dataframe
-    for col in columnas_numeric:
+    for col in tqdm(columnas_numeric):
                 #calculamos los cuartiles Q1 y Q3
         Q1 = np.nanpercentile(dataframe[col], 25)
         Q3 = np.nanpercentile(dataframe[col], 75)
@@ -203,7 +211,7 @@ def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
         dataframe2 = dataframe.drop(dataframe.index[list(valores)])
     
     elif metodo in ["mean", "median", "replace", "null"]:
-        for k, v in dic_outliers.items():
+        for k, v in tqdm(dic_outliers.items()):
             if metodo == "mean":
                 value = dataframe[k].mean() # calculamos la media para cada una de las columnas que tenemos en nuestro diccionario
             
@@ -275,7 +283,7 @@ def tratamiento_nulos_cat(dataframe, metodo = "drop", valor = "desconocido", res
 
 def encoder(dataframe, diccionario, modelo = 0):
     dataframe2 = dataframe.copy()
-    for k, v in diccionario.items():
+    for k, v in tqdm(diccionario.items()):
         if v in ["dummies", "one_hot"]:
             encoder = OneHotEncoder()
             dataframe2[k] = encoder.fit_transform(dataframe[k])
@@ -290,6 +298,7 @@ def encoder(dataframe, diccionario, modelo = 0):
                 dataframe2[k] = encoder.fit_transform(dataframe[[k]])
 
             elif list(v.keys())[0] == "map":
+                encoder = diccionario[k]["map"]
                 dataframe2[k] = dataframe[k].map(v["map"])
 
         with open(f'../data/encoding_{k}_{modelo}.pkl', 'wb') as s:
@@ -335,7 +344,70 @@ def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 
     
     param = {"max_depth": lista_depth,
             "min_samples_split": [x for x in range (25,201,25)],
-            "min_leaf_split": [x for x in range (25,201,25)],
+            "min_samples_leaf": [x for x in range (25,201,25)],
             "max_features": [x for x in range(1,int(max_features +2))]}
     
     return param
+
+def modelos_num(dataframe, respuesta, lista, parametros_tree = None, comparativa = True, modelo = 0, random_state = 42, test_size = 0.2, scoring = None):
+    X = dataframe.drop(respuesta, axis = 1)
+    y = dataframe[respuesta]
+    if comparativa == True:
+        X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = test_size, random_state = random_state)
+        df_metricas = pd.DataFrame({"MAE": [] ,"MSE":[], "RMSE":[],"R2":[], "set": [], "modelo":[]})
+    else:
+        X_train = X
+        y_train = y
+
+    for tipo_modelo in tqdm(lista):
+        if tipo_modelo == "tree":
+            estimador = DecisionTreeRegressor()
+            parametros_search = parametros_tree
+            tipo = "Decision_Tree"
+        elif tipo_modelo == "forest":
+            estimador = RandomForestRegressor()
+            parametros_search = parametros_tree
+            tipo = "Random_Forest"
+        elif tipo_modelo == "gradient":
+            estimador = GradientBoostingRegressor()
+            parametros_search = parametros_tree
+            tipo = "Gradient_Booster"
+        elif tipo_modelo == "knn":
+            estimador = KNeighborsRegressor()
+            k_range = list(range(1, 31))
+            parametros_search = dict(n_neighbors = k_range)
+            tipo = f"KNN"
+
+        gs = GridSearchCV(
+            estimator = estimador,
+            param_grid = parametros_search,
+            cv = 10,
+            verbose = 0,
+            n_jobs = -1,
+            return_train_score = True,
+            scoring = scoring)
+        gs.fit(X_train, y_train)
+
+        modelo_final = gs
+
+        if comparativa == True:
+            y_pred_test = modelo_final.predict(X_test)
+            y_pred_train = modelo_final.predict(X_train)
+            resultados = {'MAE': [metrics.mean_absolute_error(y_test, y_pred_test), metrics.mean_absolute_error(y_train, y_pred_train)],
+                        'MSE': [metrics.mean_squared_error(y_test, y_pred_test), metrics.mean_squared_error(y_train, y_pred_train)],
+                        'RMSE': [np.sqrt(metrics.mean_squared_error(y_test, y_pred_test)), np.sqrt(metrics.mean_squared_error(y_train, y_pred_train))],
+                        'R2':  [metrics.r2_score(y_test, y_pred_test), metrics.r2_score(y_train, y_pred_train)],
+                        "set": ["test", "train"]}
+            dt_results = pd.DataFrame(resultados)
+            dt_results["modelo"] = f"{tipo} {modelo}"
+            df_metricas = pd.concat([df_metricas, dt_results], axis = 0)
+            with open(f'../data/metricas_{modelo}.pkl', 'wb') as metric:
+                pickle.dump(df_metricas, metric)
+
+        with open(f'../data/modelo_{tipo}_v{modelo}.pkl', 'wb') as model:
+                pickle.dump(modelo_final, model)
+        with open(f'../data/best_parametros_{tipo}_v{modelo}.pkl', 'wb') as parametros:
+            pickle.dump(modelo_final.best_params_, parametros)
+
+    if comparativa == True:
+        return df_metricas

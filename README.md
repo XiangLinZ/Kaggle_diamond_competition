@@ -31,7 +31,7 @@ Ya hicimos un par de modelos anteriormente en el modelo, por que además quise p
 # Proceso
 ![portada2](images/diamantes_colores.jfif)
 
-Este proyecto tiene como objetivo predecir el precio de diamantes a partir de características como el peso, la claridad, el color y el corte. A continuación, se detallan los pasos seguidos en este proyecto:
+### Este proyecto tiene como objetivo predecir el precio de diamantes a partir de características como el peso, la claridad, el color y el corte. A continuación, se detallan los pasos seguidos en este proyecto:
 
 - Entendimiento del problema: Se analizó la competencia de Kaggle y se estudió la naturaleza del problema. Se identificó que se trata de un problema de regresión, ya que lo que queremos predecir es el precio.💰💰
 
@@ -51,19 +51,19 @@ En mi caso, hay bastantes datos agrupados cerca del Q3 y decidí quedarme esos d
 
 ---
 # Herramientas
-He usado diversas herramientas en este proyecto con distintos fines, aquí enumero las herramientas, junto a una pequeña descripción de estas.
+### He usado diversas herramientas en este proyecto con distintos fines, aquí enumero las herramientas, junto a una pequeña descripción de estas.
 
 - [Numpy](https://numpy.org/): Es una biblioteca de Python para trabajar con matrices y arreglos multidimensionales.
 - [Pandas](https://pandas.pydata.org/): Es una biblioteca de software libre para el lenguaje de programación Python destinada a manipulación y análisis de datos.
 
--[Matplotlib](https://matplotlib.org/): Es una biblioteca de Python para la generación de gráficos y visualizaciones.
+- [Matplotlib](https://matplotlib.org/): Es una biblioteca de Python para la generación de gráficos y visualizaciones.
 
--[Seaborn](https://seaborn.pydata.org/): Biblioteca de Python para la visualización de datos basada en matplotlib.
+- [Seaborn](https://seaborn.pydata.org/): Biblioteca de Python para la visualización de datos basada en matplotlib.
 
--[Random](https://docs.python.org/3/library/random.html): Una biblioteca de Python que permite trabajar con números aleatorios.
+- [Random](https://docs.python.org/3/library/random.html): Una biblioteca de Python que permite trabajar con números aleatorios.
 
--[pickle](https://docs.python.org/3/library/pickle.html): Biblioteca de Python que permite serializar y deserializar objetos de Python.
+- [Pickle](https://docs.python.org/3/library/pickle.html): Biblioteca de Python que permite serializar y deserializar objetos de Python.
 
--[tqdm](https://github.com/tqdm/tqdm): Es una biblioteca de Python para mostrar una barra de progreso en bucles y operaciones iterables.
+- [Tqdm](https://github.com/tqdm/tqdm): Es una biblioteca de Python para mostrar una barra de progreso en bucles y operaciones iterables.
 
--[Scikit-learn (sklearn)](https://scikit-learn.org/stable/) es una biblioteca de aprendizaje automático de código abierto para Python. Proporciona herramientas simples y eficientes para la minería y análisis de datos, así como para la construcción de modelos de aprendizaje automático y la evaluación de su rendimiento.
+- [Scikit-learn (sklearn)](https://scikit-learn.org/stable/) es una biblioteca de aprendizaje automático de código abierto para Python. Proporciona herramientas simples y eficientes para la minería y análisis de datos, así como para la construcción de modelos de aprendizaje automático y la evaluación de su rendimiento.

@@ -35,6 +35,7 @@ Ya hicimos un par de modelos anteriormente en el modelo, por que además quise p
 
 A continuación, se detallan los pasos seguidos en este proyecto:
 - Entendimiento del problema: Se analizó la competencia de Kaggle y se estudió la naturaleza del problema. Se identificó que se trata de un problema de regresión, ya que lo que queremos predecir es el precio.💰💰
+![correla](images/correla.png)
 
 - Exploración de los datos: Se analizaron las características de los datos y se estudió la distribución de las variables. Se identificaron posibles relaciones entre las variables y se buscaron posibles outliers.😯😯
 ![outliers](images/outliers.png)

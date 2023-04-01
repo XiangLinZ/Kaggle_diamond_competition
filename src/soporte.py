@@ -67,7 +67,6 @@ def analisis_basico(dataframe):
     print("Descripción de las variables tipo Categóricas:")
     display(dataframe.describe(include="object").T)
     
-    return None
 
 def distribucion_numericas(dataframe):
     """
@@ -89,6 +88,7 @@ def distribucion_numericas(dataframe):
     # Crear una lista de colores aleatorios para cada variable
     lista_colores = []
     n = len(columnas_numeric)
+
     for i in range(n):
         lista_colores.append('#%03X' % random.randint(0, 0xFFF))
 
@@ -107,7 +107,6 @@ def distribucion_numericas(dataframe):
         axes[i].set_xlabel("")
 
     fig.tight_layout()
-    return None
 
 
 def correla_respuesta_num(dataframe, respuesta):
@@ -128,6 +127,7 @@ def correla_respuesta_num(dataframe, respuesta):
 
     lista_colores = []
     n = len(columnas_numeric)
+
     for i in range(n):
         lista_colores.append('#%03X' % random.randint(0, 0xFFF))
 
@@ -147,7 +147,7 @@ def correla_respuesta_num(dataframe, respuesta):
         axes[i].set_ylabel("")
         
     fig.tight_layout();
-    return None
+
 
 def correla_map(dataframe):
     """
@@ -160,12 +160,14 @@ def correla_map(dataframe):
         None. Muestra el gráfico en pantalla.
     """
     mask = np.triu(np.ones_like(dataframe.corr(), dtype = bool))
+
     plt.figure(figsize = (15, 10))
+
     sns.heatmap(dataframe.corr(), 
         cmap = "YlGnBu", 
         mask = mask,
         annot = True);
-    return None
+
 
 def correla_respuesta_cate(dataframe, respuesta):
     """
@@ -178,7 +180,6 @@ def correla_respuesta_cate(dataframe, respuesta):
     Returns:
         None
     """
-    
     # Seleccionar columnas categóricas
     columnas_object = dataframe.select_dtypes(include = "object").columns
 
@@ -199,7 +200,7 @@ def correla_respuesta_cate(dataframe, respuesta):
         axes[i].set_xlabel("")
 
     fig.tight_layout();
-    return None
+
 
 def outlier_boxplot(dataframe, respuesta = None):
     """
@@ -214,6 +215,7 @@ def outlier_boxplot(dataframe, respuesta = None):
         None
     """
     columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+
     if respuesta != None:
         columnas_numeric = columnas_numeric.drop(respuesta)
 
@@ -228,7 +230,7 @@ def outlier_boxplot(dataframe, respuesta = None):
         axes[i].set_title(colum, fontsize = 15, fontweight = "bold")
         axes[i].set_xlabel("")
     fig.tight_layout();
-    return None
+
 
 def detectar_outliers(dataframe, respuesta=None, diccionario={}):
     """
@@ -245,9 +247,10 @@ def detectar_outliers(dataframe, respuesta=None, diccionario={}):
     Ejemplo de uso:
     >> diccionario_outliers = detectar_outliers(dataframe, respuesta="precio", diccionario={"altura": {"bot": 130, "top": 200}})
     """
-    
     dicc_indices = {} # creamos un diccionario donde almacenaremos índices de los outliers
+
     columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+
     if respuesta != None:
         columnas_numeric = columnas_numeric.drop(respuesta)
 
@@ -264,21 +267,24 @@ def detectar_outliers(dataframe, respuesta=None, diccionario={}):
         outlier_step = 1.5 * IQR
 
         if col in diccionario:
+            # Checkeamos el límite por debajo
             if "bot" in diccionario[col]:
                 outlier_step_bot = diccionario[col]["bot"]
             elif "bot" not in diccionario[col]:
                 outlier_step_bot = Q1 - outlier_step
             
+             # Checkeamos el límite por arroba
             if "top" in diccionario[col]:
                 outlier_step_top = diccionario[col]["top"]
             elif "top" not in diccionario[col]:
                 outlier_step_top = Q3 - outlier_step
 
         else:
+            # Calculamos por donde cortar
             outlier_step_bot = Q1 - outlier_step
             outlier_step_top = Q3 + outlier_step
-            # filtramos nuestro dataframe para indentificar los outliers
-        
+
+        # Filtramos nuestro dataframe para indentificar los outliers
         outliers_data = dataframe[(dataframe[col] < outlier_step_bot) | (dataframe[col] > outlier_step_top)]
         
         if outliers_data.shape[0] > 0: # chequeamos si nuestro dataframe tiene alguna fila. 
@@ -301,6 +307,7 @@ def tratar_outliers(dataframe, dic_outliers, metodo = "drop", value = 0):
     - dataframe2 (DataFrame): dataframe tratado de acuerdo al método especificado.
     """
     dataframe2 = dataframe.copy()
+
     if metodo == "drop":
         valores = set(sum((list(dic_outliers.values())), []))
         dataframe2 = dataframe.drop(dataframe.index[list(valores)])
@@ -342,6 +349,7 @@ def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neigh
     """
     # Obtenemos las columnas numéricas del dataframe
     columnas_numeric = dataframe.select_dtypes(include=np.number).columns
+
     if respuesta is not None:
         columnas_numeric = columnas_numeric.drop(respuesta)
 
@@ -354,6 +362,7 @@ def tratamiento_nulos_num(dataframe, metodo, valor = 0 , respuesta = None, neigh
     elif metodo in ["replace", "mean", "median", "mode"]:
         if metodo == "replace":
             numericas_trans = dataframe[columnas_numeric].fillna(valor)
+
         else:
             for col in columnas_numeric:
                 if metodo == "mean":
@@ -403,6 +412,7 @@ def tratamiento_nulos_cat(dataframe, metodo = "drop", valor = "desconocido", res
         El dataframe con los valores nulos de las columnas categóricas transformados según el método elegido.
     """
     columnas_object = dataframe.select_dtypes(include = "object").columns
+
     if respuesta != None:
         columnas_object = columnas_object.drop(respuesta)
         
@@ -447,9 +457,9 @@ def encoder(dataframe, diccionario, modelo = 0):
     -------
     pandas DataFrame
         El dataframe codificado.
-    
     """
     dataframe2 = dataframe.copy()
+
     for k, v in tqdm(diccionario.items()):
         if v in ["dummies", "one_hot"]:
             encoder = OneHotEncoder()
@@ -472,6 +482,7 @@ def encoder(dataframe, diccionario, modelo = 0):
                 pickle.dump(encoder, s)
 
     return dataframe2
+
 
 def estandarizacion(dataframe, metodo, lista = None ,respuesta = None, modelo = 0):
     """
@@ -496,9 +507,12 @@ def estandarizacion(dataframe, metodo, lista = None ,respuesta = None, modelo = 
         Dataframe estandarizado.
     """
     dataframe2 = dataframe.copy()
+
     columnas_numeric = dataframe.select_dtypes(include = np.number).columns
+
     if respuesta != None:
         columnas_numeric = columnas_numeric.drop(respuesta)
+
     if lista != None:
         columnas_numeric = lista
 
@@ -514,6 +528,7 @@ def estandarizacion(dataframe, metodo, lista = None ,respuesta = None, modelo = 
 
     return dataframe2
 
+
 def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 0.2):
     """
     Encuentra los mejores parámetros para un modelo de árbol de decisión de regresión numérica.
@@ -527,7 +542,6 @@ def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 
     Retorna:
     Un diccionario con los mejores parámetros para el modelo de árbol de decisión.
     """
-
     # Dividir el conjunto de datos en entrenamiento y prueba
     X = dataframe.drop(respuesta, axis=1)
     y = dataframe[respuesta]
@@ -540,6 +554,7 @@ def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 
     # Definir los posibles valores de los parámetros
     max_features = np.sqrt(len(X_train.columns))
     max_depth = regressor.tree_.max_depth
+
     if max_depth > 15:
         lista_depth = [x for x in range(2, (15), 2)] + [x for x in range(16, (max_depth + 2), 4)]
     elif max_depth > 8:
@@ -551,14 +566,14 @@ def mejores_parametros_num(dataframe, respuesta, random_state = 42, test_size = 
         "max_depth": lista_depth,
         "min_samples_split": [x for x in range(25, 201, 25)],
         "min_samples_leaf": [x for x in range(25, 201, 25)],
-        "max_features": [x for x in range(1, int(max_features + 2))]
-    }
+        "max_features": [x for x in range(1, int(max_features + 2))]}
     
     # Buscar los mejores parámetros utilizando una búsqueda por cuadrícula
     grid_search = GridSearchCV(estimator=regressor, param_grid=param, cv=5, n_jobs=-1)
     grid_search.fit(X_train, y_train)
     
     return grid_search.best_params_
+
 
 def modelos_num(dataframe, respuesta, lista, parametros_tree = None, comparativa = True, modelo = 0, random_state = 42, test_size = 0.2, scoring = None):
     """
@@ -604,6 +619,7 @@ def modelos_num(dataframe, respuesta, lista, parametros_tree = None, comparativa
     """
     X = dataframe.drop(respuesta, axis = 1)
     y = dataframe[respuesta]
+
     if comparativa == True:
         X_train, X_test, y_train, y_test = train_test_split(X,y, test_size = test_size, random_state = random_state)
         df_metricas = pd.DataFrame({"MAE": [] ,"MSE":[], "RMSE":[],"R2":[], "set": [], "modelo":[]})
@@ -658,6 +674,7 @@ def modelos_num(dataframe, respuesta, lista, parametros_tree = None, comparativa
 
         with open(f'../data/modelo_{tipo}_v{modelo}.pkl', 'wb') as model:
                 pickle.dump(modelo_final, model)
+                
         with open(f'../data/best_parametros_{tipo}_v{modelo}.pkl', 'wb') as parametros:
             pickle.dump(modelo_final.best_params_, parametros)
 

@@ -62,10 +62,11 @@ Las métricas de mi mejor modelo son:
 
 Características especiales del modelo:
 - Variables conservadas: Cut, Color, Clarity, X, Y, Z.
-- Gestión de outliers: Q2 y valores superiores a un valor concreto (x: 15, y: 20, z: 10)
+- Gestión de outliers: Q2 y valores superiores a un valor concreto (x: 15, y: 20, z: 10).
 - Estandarización: No, todos los valores numéricos están en la misma escala.
+- Encoding: LabelEncoding.
 - Modelo: Gradient Booster.
-- Métricas del modelo: max_depth: 12, max_features: 4, min_samples_leaf: 25, min_samples_split: 75
+- Métricas del modelo: max_depth: 12, max_features: 4, min_samples_leaf: 25, min_samples_split: 75.
 ---
 # Herramientas
 ### He usado diversas herramientas en este proyecto con distintos fines, aquí enumero las herramientas, junto a una pequeña descripción de estas.

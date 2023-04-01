@@ -50,6 +50,21 @@ En mi caso, hay bastantes datos agrupados cerca del Q3 y decidí quedarme esos d
 - Predicciones: Se usó el modelo para hacer predicciones en un conjunto de datos desconocido y se guardó el resultado en un archivo CSV, que posteriormente se subió a la competición de [Kaggle](https://www.kaggle.com/competitions/diamonds-datamad1022/overview).
 
 ---
+# Mejor modelo
+![portada3](images/modelos-predictivos.jpg)
+
+Las métricas de mi mejor modelo son:
+- MSE:
+- RMSE:
+- R2:
+
+Características especiales del modelo:
+- Variables conservadas:
+- Gestión de outliers:
+- Estandarización:
+- Modelo:
+- Métricas del modelo:
+---
 # Herramientas
 ### He usado diversas herramientas en este proyecto con distintos fines, aquí enumero las herramientas, junto a una pequeña descripción de estas.
 

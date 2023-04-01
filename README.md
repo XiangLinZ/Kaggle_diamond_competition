@@ -54,16 +54,16 @@ En mi caso, hay bastantes datos agrupados cerca del Q3 y decidí quedarme esos d
 ![portada3](images/modelos-predictivos.jpg)
 
 Las métricas de mi mejor modelo son:
-- MSE:
-- RMSE:
-- R2:
+- MSE: 0.008165
+- RMSE: 0.090360
+- R2: 0.992005
 
 Características especiales del modelo:
-- Variables conservadas:
-- Gestión de outliers:
-- Estandarización:
-- Modelo:
-- Métricas del modelo:
+- Variables conservadas: Cut, Color, Clarity, X, Y, Z.
+- Gestión de outliers: Q2 y valores superiores a un valor concreto (x: 15, y: 20, z: 10)
+- Estandarización: No, todos los valores numéricos están en la misma escala.
+- Modelo: Gradient Booster.
+- Métricas del modelo: max_depth: 12, max_features: 4, min_samples_leaf: 25, min_samples_split: 75
 ---
 # Herramientas
 ### He usado diversas herramientas en este proyecto con distintos fines, aquí enumero las herramientas, junto a una pequeña descripción de estas.

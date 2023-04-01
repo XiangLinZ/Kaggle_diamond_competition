@@ -29,10 +29,11 @@ Ya hicimos un par de modelos anteriormente en el modelo, por que además quise p
 
 ---
 # Proceso
+### Este proyecto tiene como objetivo predecir el precio de diamantes a partir de características como el peso, la claridad, el color y el corte. 
+
 ![portada2](images/diamantes_colores.jfif)
 
-### Este proyecto tiene como objetivo predecir el precio de diamantes a partir de características como el peso, la claridad, el color y el corte. A continuación, se detallan los pasos seguidos en este proyecto:
-
+A continuación, se detallan los pasos seguidos en este proyecto:
 - Entendimiento del problema: Se analizó la competencia de Kaggle y se estudió la naturaleza del problema. Se identificó que se trata de un problema de regresión, ya que lo que queremos predecir es el precio.💰💰
 
 - Exploración de los datos: Se analizaron las características de los datos y se estudió la distribución de las variables. Se identificaron posibles relaciones entre las variables y se buscaron posibles outliers.😯😯
